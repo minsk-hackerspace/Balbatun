@@ -1,0 +1,2 @@
+tz: "Europe/Minsk"
+controllers_enabled: ["Reminder", "Misc"]

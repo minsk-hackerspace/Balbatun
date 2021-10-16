@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gem 'telegram-bot-ruby'
+gem 'net-http-persistent'
+gem 'activerecord'
+gem 'rake'
+gem 'sqlite3'
+gem 'clockwork'
+gem 'daemons'
+gem 'colorize'
