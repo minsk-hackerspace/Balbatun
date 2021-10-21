@@ -1,5 +1,5 @@
 # Telegram bot
 
-This is just a playround :)
+This is just a playground :)
 
 License: GPLv2
