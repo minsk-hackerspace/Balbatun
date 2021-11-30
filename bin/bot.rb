@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # encoding: utf-8
 
 require 'telegram/bot'
@@ -59,28 +59,32 @@ class TheBot
       $logger.debug "Me: " + @me.inspect
 
       bot.listen do |message|
-        $logger.debug "Msg: chat #{message.chat.id}, from #{message.from.id}(@#{message.from.username}): #{message.text || "<non-text"}"
-        $logger.debug message.inspect
-
-        next if message.text.nil?
-
-        text = message.text
-
-        if message.chat.id < 0
-          first, text = text.split(/[\s,]+/, 2)
-          # Skip the message if not addressed for the bot
-          next if not ['@' + @me['username'], @me['first_name']].include?(first)
-        end
-
-        c = text.split(' ')[0].strip
-        next if c.nil? or c == ''
-
-        c.delete_prefix! '/'
-
         begin
-          @commands[c]&.send("cmd_#{c}", message, text)
+          next if message.text.nil?
+
+          text = message.text
+
+          if message.chat.id < 0
+            first, text = text.split(/[\s,]+/, 2)
+            # Skip the message if not addressed for the bot
+            next if not ['@' + @me['username'], @me['first_name']].include?(first)
+          end
+
+          $logger.debug "Msg: chat #{message.chat.id}, from '#{message.from&.id}'(@#{message.from&.username}): #{message.text || "<non-text"}"
+
+          c = text.split(' ')[0].strip
+          next if c.nil? or c == ''
+
+          c.delete_prefix! '/'
+          c.downcase!
+
+          begin
+            @commands[c]&.send("cmd_#{c}", message, text)
+          rescue => e
+            $logger.error "Command execution error:\n" + e.full_message
+          end
         rescue => e
-          $logger.error "Command execution error:\n" + e.full_message
+          $logger.error "Message handling error:\n" + e.full_message
         end
       end
     end

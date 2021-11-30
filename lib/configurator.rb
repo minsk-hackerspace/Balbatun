@@ -34,6 +34,10 @@ class Configurator
     @secrets['telegram_bot_token']
   end
 
+  def bramnik_token
+    @secrets['bramnik_api_token']
+  end
+
   def logger
     l = Logger.new(STDOUT, Logger::DEBUG)
     l.formatter = ColorFormatter.new
