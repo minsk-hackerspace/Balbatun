@@ -17,7 +17,8 @@ class BramnikController < BotController
     user_id = nil
 
     if token
-      user_id = auth_hs_user(token)['id']
+      hs_user = auth_hs_user(token)
+      user_id = hs_user['id'] if hs_user
     else
       user = User.find_by(telegram_id: message.from.id, chat_id: message.chat.id)
       user_id = user&.hacker_id
@@ -36,7 +37,15 @@ class BramnikController < BotController
 
       reply message, "Привет, #{user.name}! Я тебя знаю, ты член хакерспейса №#{user.hacker_id}."
     else
-      reply message, "Неизвестный пользователь. Пожалуйста, авторизуйтесь через кнопку в профиле пользователя на #{HACKERSPACE_BASE_URL}/profile"
+      @bot.tg_bot.api.send_message(
+        chat_id: message.chat.id,
+        text: "Неизвестный пользователь. Пожалуйста, авторизуйтесь через кнопку «Авторизоваться у Брамника» в профиле пользователя на сайте хакерспейса",
+        reply_markup: JSON.generate({
+          inline_keyboard: [[
+            { text: "Перейти в профиль", url: "#{HACKERSPACE_BASE_URL}/profile" }
+          ]]
+        })
+      )
     end
   end
 
