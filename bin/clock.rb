@@ -33,8 +33,4 @@ module Clockwork
   sync_database_events model: Reminder, every: 1.minute do |r|
     theBot.api.send_message(chat_id: r.chat_id, text: r.text)
   end
-
-  every 1.minute, '1min' do
-    $logger.debug "1-min event"
-  end
 end
