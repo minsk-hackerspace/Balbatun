@@ -4,10 +4,10 @@ require 'net/http'
 
 class BramnikController < BotController
   HACKERSPACE_BASE_URL = "https://hackerspace.by"
-  OPEN_THE_DOOR_CMD = "ssh pi@bramnik.local sudo systemctl kill -s USR1 bramnik"
+  EMIT_CODE_CMD = "ssh pi@bramnik.local sh -c \"'cd /srv/Bramnik/software/host && sudo ./bramnik_mgr.py code emit _ID_ 600 BramnikBot _ID_'\""
 
   def initialize(bot)
-    @supported_commands = ['start', 'open_door']
+    @supported_commands = ['start', 'gen_code']
     super
   end
 
@@ -40,7 +40,7 @@ class BramnikController < BotController
     end
   end
 
-  def cmd_open_door(message, text)
+  def cmd_gen_code(message, text)
     user = authorize!(message)
 
     return unless user
@@ -51,18 +51,17 @@ class BramnikController < BotController
       return
     end
 
-    $logger.debug hs_user.inspect
     unless hs_user['access_allowed?']
       reply message, "Доступ в хакерспейс запрещён"
       return
     end
 
-    opened = open_the_door if hs_user['access_allowed?']
+    code = bramnik_emit_code(user.hacker_id) if hs_user['access_allowed?']
 
-    if opened
-      reply message, "Дверь открыта"
+    if code
+      reply message, "Код для открытия двери: #{code}, действует 10 минут"
     else
-      reply message, "Упс! Дверь открыть не удалось..."
+      reply message, "Упс! Сгенерировать код не удалось..."
     end
   end
 
@@ -109,7 +108,10 @@ class BramnikController < BotController
     user
   end
 
-  def open_the_door
-    system(OPEN_THE_DOOR_CMD, exception: false)
+  def bramnik_emit_code(user_id)
+    cmd = EMIT_CODE_CMD.gsub('_ID_', user_id.to_s)
+    res = `#{cmd}`
+    code = res&.split[3]
+    code
   end
 end
