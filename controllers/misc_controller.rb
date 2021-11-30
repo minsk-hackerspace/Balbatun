@@ -6,8 +6,8 @@ class MiscController < BotController
     super
   end
 
-  def cmd_help(message)
-    arg = message.text.split(/\s/)[1]&.downcase
+  def cmd_help(message, text)
+    arg = text.split(/\s/)[1]&.downcase
 
     if arg then
       if arg == 'all' then

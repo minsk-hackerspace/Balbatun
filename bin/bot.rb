@@ -38,6 +38,7 @@ class TheBot
     end
 
     $logger.debug "Controllers: " + @controllers.map { |c| c.class.name }.join(', ')
+    $logger.debug "Commands: " + @commands.keys.join(', ')
   end
 
   def supported_commands
@@ -54,18 +55,30 @@ class TheBot
 
   def run_loop
     @tg_bot.run do |bot|
+      @me = bot.api.getMe['result']
+      $logger.debug "Me: " + @me.inspect
+
       bot.listen do |message|
         $logger.debug "Msg: chat #{message.chat.id}, from #{message.from.id}(@#{message.from.username}): #{message.text || "<non-text"}"
+        $logger.debug message.inspect
 
         next if message.text.nil?
 
-        c = message.text.split(' ')[0].strip
+        text = message.text
+
+        if message.chat.id < 0
+          first, text = text.split(/[\s,]+/, 2)
+          # Skip the message if not addressed for the bot
+          next if not ['@' + @me['username'], @me['first_name']].include?(first)
+        end
+
+        c = text.split(' ')[0].strip
         next if c.nil? or c == ''
 
         c.delete_prefix! '/'
 
         begin
-          @commands[c]&.send("cmd_#{c}", message)
+          @commands[c]&.send("cmd_#{c}", message, text)
         rescue => e
           $logger.error "Command execution error:\n" + e.full_message
         end

@@ -15,8 +15,8 @@ class ReminderController < BotController
     super(bot)
   end
 
-  def cmd_remind(message)
-    message.text =~ /\/remind ([^\s]+\s[^\s]+)\s+(.*)$/
+  def cmd_remind(message, text)
+    text =~ /\/remind ([^\s]+\s[^\s]+)\s+(.*)$/
     $logger.debug "Parsed remind args: #{$1}, #{$2}"
     begin
       t = Time.parse $1
@@ -39,7 +39,7 @@ class ReminderController < BotController
     end
   end
 
-  def cmd_reminders(message)
+  def cmd_reminders(message, text)
     text = "Напоминания:\n"
     Reminder.where(chat_id: message.chat.id).each do |r|
       text += "#{r.id}. #{r.time}: #{r.text}\n"
@@ -48,8 +48,8 @@ class ReminderController < BotController
     reply message, text
   end
 
-  def cmd_reminder_delete(message)
-    args = message.text.split(' ')
+  def cmd_reminder_delete(message, text)
+    args = text.split(' ')
     id = args[1].to_i
 
     if id == 0
