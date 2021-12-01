@@ -65,7 +65,7 @@ class BramnikController < BotController
       return
     end
 
-    code = bramnik_emit_code(user.hacker_id) if hs_user['access_allowed?']
+    code = bramnik_emit_code(user.hacker_id)
 
     if code
       reply message, "Код для открытия двери: #{code}, действует 10 минут"
