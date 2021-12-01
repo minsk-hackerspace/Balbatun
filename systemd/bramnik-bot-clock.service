@@ -1,0 +1,13 @@
+[Unit]
+Description=Bramnik telegram bot (clock)
+
+[Service]
+Type=simple
+WorkingDirectory=/home/bramnik/BramnikBot/
+ExecStart=/usr/bin/rbenv exec bundle exec clockwork ./bin/clock.rb
+StandardOutput=journal
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
