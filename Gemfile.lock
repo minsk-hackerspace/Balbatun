@@ -50,6 +50,9 @@ GEM
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
+    journald-logger (3.0.1)
+      journald-native (~> 1.0)
+    journald-native (1.0.12)
     minitest (5.14.4)
     multipart-post (2.1.1)
     net-http-persistent (4.0.1)
@@ -78,6 +81,7 @@ DEPENDENCIES
   clockwork
   colorize
   daemons
+  journald-logger
   net-http-persistent
   rake
   sqlite3

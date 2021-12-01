@@ -1,4 +1,5 @@
 require 'logger'
+require 'journald/logger'
 require 'yaml'
 require 'colorize'
 
@@ -39,8 +40,17 @@ class Configurator
   end
 
   def logger
-    l = Logger.new(STDOUT, Logger::DEBUG)
-    l.formatter = ColorFormatter.new
+    case @config['logger']
+    when 'stdout'
+      l = Logger.new(STDOUT, Logger::DEBUG)
+      l.formatter = ColorFormatter.new
+    when 'journald'
+      l = Journald::Logger.new('Balbatun', Journald::LOG_DEBUG)
+    else
+      STDERR.puts "Logger is not defined in the config, define please"
+      exit 1
+    end
+
     l
   end
 
