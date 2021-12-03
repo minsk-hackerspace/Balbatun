@@ -53,7 +53,7 @@ class BramnikController < BotController
   def cmd_read_card(message, text)
     return unless authorize!(message)
 
-    reply message, "Приложите карту к считывателю в течение 10 секунд"
+    reply message, "Приложите карту к считывателю..."
 
     key = `#{GET_NFC_KEY_COMMAND}`
 
