@@ -5,9 +5,10 @@ require 'net/http'
 class BramnikController < BotController
   HACKERSPACE_BASE_URL = "https://hackerspace.by"
   EMIT_CODE_CMD = "ssh pi@bramnik.local sh -c \"'cd /srv/Bramnik/software/host && sudo ./bramnik_mgr.py code emit _ID_ 600 BramnikBot _ID_'\""
+  GET_NFC_KEY_COMMAND = "ssh pi@bramnik.local /srv/Bramnik/software/host/get_key.sh"
 
   def initialize(bot)
-    @supported_commands = ['start', 'gen_code']
+    @supported_commands = ['start', 'gen_code', 'read_card']
     super
   end
 
@@ -47,6 +48,22 @@ class BramnikController < BotController
         })
       )
     end
+  end
+
+  def cmd_read_card(message, text)
+    return unless authorize!(message)
+
+    reply message, "Приложите карту к считывателю в течение 10 секунд"
+
+    key = `#{GET_NFC_KEY_COMMAND}`
+
+    unless key.empty?
+      key = "#{key[0..1]}:#{key[2..3]}:#{key[4..5]}:#{key[6..7]}"
+      reply message, "Приложена карта. ID: #{key}"
+    else
+      reply message, "Карта не обнаружена"
+    end
+
   end
 
   def cmd_gen_code(message, text)
