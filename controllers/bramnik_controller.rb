@@ -1,5 +1,6 @@
 require './controllers/bot_controller'
 require './models/user'
+require './lib/authorizer'
 require 'net/http'
 
 class BramnikController < BotController
@@ -51,7 +52,7 @@ class BramnikController < BotController
   end
 
   def cmd_read_card(message, text)
-    return unless authorize!(message)
+    return unless Authorizer.authorize(message)
 
     reply message, "Приложите карту к считывателю..."
 
@@ -67,7 +68,7 @@ class BramnikController < BotController
   end
 
   def cmd_gen_code(message, text)
-    user = authorize!(message)
+    user = Authorizer.authorize(message)
 
     return unless user
 
@@ -121,17 +122,6 @@ class BramnikController < BotController
     end
 
     JSON.parse(res.body)
-  end
-
-  def authorize!(message)
-    user = User.find_by(telegram_id: message.from&.id)
-
-    unless user
-      reply message, "Неизвестный пользователь. Пожалуйста, авторизуйтесь через кнопку в профиле пользователя на #{HACKERSPACE_BASE_URL}/profile"
-      return nil
-    end
-
-    user
   end
 
   def bramnik_emit_code(user_id)
