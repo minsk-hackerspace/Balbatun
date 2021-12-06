@@ -1,4 +1,0 @@
-tz: "Europe/Minsk"
-controllers_enabled: ["Reminder", "Misc", "Bramnik"]
-#logger: stdout, journald
-logger: stdout

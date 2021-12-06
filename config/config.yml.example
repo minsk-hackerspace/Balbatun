@@ -1,0 +1,10 @@
+tz: "Europe/Minsk"
+controllers_enabled: ["Reminder", "Misc", "Bramnik", "Cameras"]
+#logger: stdout, journald
+logger: stdout
+cameras:
+  - name: Name1
+    snapshot_uri: http://192.168.xxx.xxx/Streaming/channels/1/picture
+    user: admin
+    password: password
+
