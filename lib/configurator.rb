@@ -62,6 +62,10 @@ class Configurator
     @config['controllers_enabled'] || []
   end
 
+  def cameras
+    @config['cameras']
+  end
+
   private
 
   def setup_database
