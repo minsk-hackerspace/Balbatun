@@ -20,4 +20,29 @@ class BotController
       photo: Faraday::UploadIO.new(StringIO.new(image), 'image/jpeg')
     )
   end
+
+  def reply_photos(message, images_with_captions)
+    photos = []
+    upload_photos = {}
+
+    images_with_captions.each_with_index { |item, i|
+      image, caption = item[0], item[1]
+
+      m = {
+        type: 'photo',
+        media: "attach://photo_#{i}",
+        caption: caption
+      }
+
+      photos << m
+      upload_photos["photo_#{i}"] = Faraday::UploadIO.new(StringIO.new(image), 'image/jpeg')
+    }
+
+    @bot.tg_bot.api.sendMediaGroup(
+      {
+        chat_id: message.chat.id,
+        media: photos
+      }.merge(upload_photos)
+    )
+  end
 end

@@ -5,7 +5,7 @@ require 'net/http'
 
 class CamerasController < BotController
   def initialize(bot)
-    @supported_commands = ['camera', 'cameras']
+    @supported_commands = ['camera', 'cameras', 'camera_list']
 
     @cameras = $config.cameras
 
@@ -19,8 +19,6 @@ class CamerasController < BotController
 
     camera = @cameras[camera_id]
 
-    $logger.debug @cameras.inspect
-    $logger.debug camera.inspect
     unless camera
       reply message, "Камера не найдена"
       return
@@ -34,13 +32,28 @@ class CamerasController < BotController
     end
 
     reply_photo message, img, "Камера #{camera_id}: #{camera['name']}"
+  end
 
+  def cmd_camera_list(message, text)
+    return unless Authorizer.authorize(message)
+
+    reply message, "Камеры:\n#{@cameras.each_with_index.map{ |c, i| "#{i}: #{c['name']}"}.join(", \n")}"
   end
 
   def cmd_cameras(message, text)
     return unless Authorizer.authorize(message)
 
-    reply message, "Камеры: #{@cameras.each_with_index.map{ |c, i| "#{i}: #{c['name']}"}.join(', ')}"
+    reply message, "Минутку..."
+
+    images_with_captions = []
+    @cameras.each do |camera|
+      begin
+        image = get_snapshot(camera)
+        images_with_captions << [image, "Камера: #{camera['name']}"]
+      rescue
+      end
+    end
+    reply_photos(message, images_with_captions)
   end
 
   private
