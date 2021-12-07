@@ -60,6 +60,7 @@ class TheBot
 
       bot.listen do |message|
         begin
+          next unless message.is_a? Telegram::Bot::Types::Message
           next if message.text.nil?
 
           text = message.text
