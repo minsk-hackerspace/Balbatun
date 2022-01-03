@@ -13,7 +13,7 @@ class CamerasController < BotController
   end
 
   def cmd_camera(message, text)
-    return unless Authorizer.authorize(message)
+    return unless Authorizer.authorize(@bot, message)
 
     camera_id = text.split(' ', 2)[1]&.to_i || 0
 
@@ -35,13 +35,13 @@ class CamerasController < BotController
   end
 
   def cmd_camera_list(message, text)
-    return unless Authorizer.authorize(message)
+    return unless Authorizer.authorize(@bot, message)
 
     reply message, "Камеры:\n#{@cameras.each_with_index.map{ |c, i| "#{i}: #{c['name']}"}.join(", \n")}"
   end
 
   def cmd_cameras(message, text)
-    return unless Authorizer.authorize(message)
+    return unless Authorizer.authorize(@bot, message)
 
     reply message, "Минутку..."
 

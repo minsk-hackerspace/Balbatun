@@ -52,7 +52,7 @@ class BramnikController < BotController
   end
 
   def cmd_read_card(message, text)
-    return unless Authorizer.authorize(message)
+    return unless Authorizer.authorize(@bot, message)
 
     reply message, "Приложите карту к считывателю..."
 
@@ -68,7 +68,7 @@ class BramnikController < BotController
   end
 
   def cmd_gen_code(message, text)
-    user = Authorizer.authorize(message)
+    user = Authorizer.authorize(@bot, message)
 
     return unless user
 
@@ -93,7 +93,7 @@ class BramnikController < BotController
   end
 
   def cmd_whois(message, text)
-    return unless Authorizer.authorize(message)
+    return unless Authorizer.authorize(@bot, message)
 
     arg = text.split(/\s/)[1]&.downcase
     uid = arg&.to_i
@@ -113,7 +113,7 @@ class BramnikController < BotController
   end
 
   def cmd_whoami(message, text)
-    user = Authorizer.authorize(message)
+    user = Authorizer.authorize(@bot, message)
 
     unless user
       reply message, "Не авторизовано, используйте команду /start"
