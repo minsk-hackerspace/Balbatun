@@ -9,7 +9,7 @@ class BramnikController < BotController
   GET_NFC_KEY_COMMAND = "ssh pi@bramnik.local /srv/Bramnik/software/host/get_key.sh"
 
   def initialize(bot)
-    @supported_commands = ['start', 'gen_code', 'read_card', 'whois']
+    @supported_commands = ['start', 'gen_code', 'read_card', 'whois', 'whoami']
     super
   end
 
@@ -110,6 +110,21 @@ class BramnikController < BotController
     end
 
     reply message, "Участник №#{uid}: #{hs_user['first_name']} #{hs_user['last_name']}"
+  end
+
+  def cmd_whoami(message, text)
+    user = Authorizer.authorize(message)
+
+    unless user
+      reply message, "Не авторизовано, используйте команду /start"
+      return
+    end
+
+    unless user.hacker_id
+      reply message, "Хм, вы не похожи на хакера"
+    end
+
+    reply message, "Участник №#{user.hacker_id}"
   end
 
   private
