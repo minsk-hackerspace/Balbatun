@@ -9,7 +9,7 @@ class BramnikController < BotController
   GET_NFC_KEY_COMMAND = "ssh pi@bramnik.local /srv/Bramnik/software/host/get_key.sh"
 
   def initialize(bot)
-    @supported_commands = ['start', 'gen_code', 'read_card']
+    @supported_commands = ['start', 'gen_code', 'read_card', 'whois']
     super
   end
 
@@ -90,6 +90,26 @@ class BramnikController < BotController
     else
       reply message, "Упс! Сгенерировать код не удалось..."
     end
+  end
+
+  def cmd_whois(message, text)
+    return unless Authorizer.authorize(message)
+
+    arg = text.split(/\s/)[1]&.downcase
+    uid = arg&.to_i
+
+    unless uid
+      reply message, "Формат команды: /whois <№ участника>"
+      return
+    end
+
+    hs_user = get_hs_user(uid)
+    unless hs_user
+      reply message, "Участник №#{uid} не найден"
+      return
+    end
+
+    reply message, "Участник №#{uid}: #{hs_user['first_name']} #{hs_user['last_name']}"
   end
 
   private
