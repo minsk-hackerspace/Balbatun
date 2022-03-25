@@ -5,7 +5,7 @@ require 'net/http'
 
 class BramnikController < BotController
   HACKERSPACE_BASE_URL = "https://hackerspace.by"
-  EMIT_CODE_CMD = "ssh pi@bramnik.local sh -c \"'cd /srv/Bramnik/software/host && sudo ./bramnik_mgr.py code emit _ID_ 10 BramnikBot _ID_'\""
+  EMIT_CODE_CMD = "ssh pi@bramnik.local sh -c \"'cd /srv/Bramnik/software/host && ./bramnik_mgr.py code emit _ID_ 10 BramnikBot _ID_'\""
   GET_NFC_KEY_COMMAND = "ssh pi@bramnik.local /srv/Bramnik/software/host/get_key.sh"
 
   def initialize(bot)
