@@ -53,6 +53,24 @@ class TheBot
     h
   end
 
+  def entity_text(message, entity)
+    return nil unless entity
+
+    message&.text[entity.offset..(entity.offset + entity.length)]
+  end
+
+  def check_for_group_command(message)
+    entity = message.entities.first
+
+    return nil unless entity.type == "bot_command"
+    return nil unless entity.is_a? Telegram::Bot::Types::MessageEntity
+
+    command = entity_text(message, entity)
+    command, nick = command.split('@')
+
+    return nick == @me["username"] ? command : nil
+  end
+
   def run_loop
     @tg_bot.run do |bot|
       @me = bot.api.getMe['result']
@@ -64,22 +82,32 @@ class TheBot
           next if message.text.nil?
 
           text = message.text
+          command = nil
 
           if message.chat.id < 0
-            first, text = text.split(/[\s,]+/, 2)
-            # Skip the message if not addressed for the bot
-            next if not ['@' + @me['username'], @me['first_name']].include?(first)
+            command = check_for_group_command(message)
+
+            unless command
+              first, text = text.split(/[\s,]+/, 2)
+              # Skip the message if not addressed for the bot
+              next if not ['@' + @me['username'], @me['first_name']].include?(first)
+            end
           end
 
           $logger.debug "Msg: chat #{message.chat.id}, from '#{message.from&.id}'(@#{message.from&.username}): #{message.text || "<non-text"}"
 
-          c = text.split(' ')[0].strip
+          next if command.nil? && text.nil?
+
+          c = command || text.split(' ')[0].strip
           next if c.nil? or c == ''
 
           c.delete_prefix! '/'
           c.downcase!
 
+          $logger.debug "Command #{c}"
+
           begin
+            # text is command arguments with command name
             @commands[c]&.send("cmd_#{c}", message, text)
           rescue => e
             $logger.error "Command execution error:\n" + e.full_message
