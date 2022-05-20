@@ -150,6 +150,9 @@ class BramnikController < BotController
       t += "#{ts['users']}\t #{ts['name']} (#{ts['monthly_price']} руб./мес.)\n"
     end
 
+    sum = stats['tariff_stats'].values.map { |ts| ts['monthly_price'].to_f }.sum
+    t += "\nСумма взносов в месяц: #{sum.to_i} BYN"
+
     reply message, t
   end
 
