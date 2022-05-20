@@ -9,7 +9,7 @@ class BramnikController < BotController
   GET_NFC_KEY_COMMAND = "ssh pi@bramnik.local /srv/Bramnik/software/host/get_key.sh"
 
   def initialize(bot)
-    @supported_commands = ['start', 'gen_code', 'read_card', 'whois', 'whoami']
+    @supported_commands = ['start', 'gen_code', 'read_card', 'whois', 'whoami', 'members_stats']
     super
   end
 
@@ -127,6 +127,32 @@ class BramnikController < BotController
     reply message, "Участник №#{user.hacker_id}"
   end
 
+  def cmd_members_stats(message, text)
+    user = Authorizer.authorize(@bot, message)
+
+    unless user
+      reply message, "Не авторизовано, используйте команду /start"
+      return
+    end
+
+    stats = get_hs_stats
+    unless stats
+      reply message, "Не удалось получить статистику с сайта"
+      return
+    end
+
+    t = "Статистика участников:\n\n"
+    t += "Всего участников: #{stats['members_count']}\n"
+    t += "Активных участников: #{stats['active_members']}\n\n"
+
+    t += "Количество активных пользователей по тарифам:\n"
+    stats['tariff_stats'].values.each do |ts|
+      t += "#{ts['users']}\t #{ts['name']} (#{ts['monthly_price']} руб./мес.)\n"
+    end
+
+    reply message, t
+  end
+
   private
   def query_hs(path)
     uri = URI(HACKERSPACE_BASE_URL + path)
@@ -153,6 +179,17 @@ class BramnikController < BotController
 
     unless res.is_a?(Net::HTTPSuccess)
       $logger.warn "Failed to retrieve user info from the HS site: #{res.code} #{res.message}"
+      return nil
+    end
+
+    JSON.parse(res.body)
+  end
+
+  def get_hs_stats
+    res = query_hs("/bramnik/members_statistics")
+
+    unless res.is_a?(Net::HTTPSuccess)
+      $logger.warn "Failed to retrieve members statistics from the HS site: #{res.code} #{res.message}"
       return nil
     end
 
