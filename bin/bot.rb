@@ -65,7 +65,7 @@ class TheBot
     return nil unless entity.type == "bot_command"
     return nil unless entity.is_a? Telegram::Bot::Types::MessageEntity
 
-    command = entity_text(message, entity)
+    command = entity_text(message, entity).chomp(' ')
     command, nick = command.split('@')
 
     return nick == @me["username"] ? command : nil
