@@ -66,6 +66,10 @@ class Configurator
     @config['cameras']
   end
 
+  def gates
+    @config['gates']
+  end
+
   private
 
   def setup_database
