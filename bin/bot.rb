@@ -62,7 +62,7 @@ class TheBot
   def check_for_group_command(message)
     entity = message.entities.first
 
-    return nil unless entity.type == "bot_command"
+    return nil unless entity&.type == "bot_command"
     return nil unless entity.is_a? Telegram::Bot::Types::MessageEntity
 
     command = entity_text(message, entity).chomp(' ')
