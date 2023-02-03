@@ -68,6 +68,8 @@ class TheBot
     command = entity_text(message, entity).chomp(' ')
     command, nick = command.split('@')
 
+    $logger.debug "Command, nick: #{command.inspect}, #{nick.inspect}"
+
     return nick == @me["username"] ? command : nil
   end
 
@@ -78,37 +80,24 @@ class TheBot
 
       bot.listen do |message|
         begin
-          next unless message.is_a? Telegram::Bot::Types::Message
-          next if message.text.nil?
+          $logger.debug message.inspect
 
-          text = message.text
-          command = nil
-
-          if message.chat.id < 0
-            command = check_for_group_command(message)
-
-            unless command
-              first, text = text.split(/[\s,]+/, 2)
-              # Skip the message if not addressed for the bot
-              next if not ['@' + @me['username'], @me['first_name']].include?(first)
-            end
+          case message.class.to_s
+          when 'Telegram::Bot::Types::Message'
+            cmd, message, text = parse_message(message)
+          when 'Telegram::Bot::Types::CallbackQuery'
+            cmd, message, text = parse_callback(message)
+          else
+            next
           end
 
-          $logger.debug "Msg: chat #{message.chat.id}, from '#{message.from&.id}'(@#{message.from&.username}): #{message.text || "<non-text"}"
+          next if cmd.nil?
 
-          next if command.nil? && text.nil?
-
-          c = command || text.split(' ')[0].strip
-          next if c.nil? or c == ''
-
-          c.delete_prefix! '/'
-          c.downcase!
-
-          $logger.debug "Command #{c}"
+          $logger.debug "Command #{cmd}, text: #{text}"
 
           begin
             # text is command arguments with command name
-            @commands[c]&.send("cmd_#{c}", message, text)
+            @commands[cmd]&.send("cmd_#{cmd}", message, text)
           rescue => e
             $logger.error "Command execution error:\n" + e.full_message
           end
@@ -117,6 +106,46 @@ class TheBot
         end
       end
     end
+  end
+
+  private
+
+  def parse_message(message)
+    return nil if message.text.nil?
+
+    text = message.text
+    command = nil
+
+    if message.chat.id < 0
+      command = check_for_group_command(message)
+
+      $logger.debug "Command: " + command.inspect
+
+      unless command
+        first, text = text.split(/[\s,]+/, 2)
+        # Skip the message if not addressed for the bot
+        return nil if not ['@' + @me['username'], @me['first_name']].include?(first)
+      end
+    end
+
+    $logger.debug "Msg: chat #{message.chat.id}, from '#{message.from&.id}'(@#{message.from&.username}): #{message.text || "<non-text"}"
+
+    return nil if command.nil? && text.nil?
+
+    c = command || text.split(' ')[0].strip
+    return nil if c.nil? or c == ''
+
+    c.delete_prefix! '/'
+    c.downcase!
+
+    return c, message, text
+  end
+
+  def parse_callback(callback)
+    text = callback.data
+    cmd = text.split(' ')[0]
+
+    return cmd, callback.message, text
   end
 end
 
