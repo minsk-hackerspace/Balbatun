@@ -1,5 +1,5 @@
 tz: "Europe/Minsk"
-controllers_enabled: ["Reminder", "Misc", "Bramnik", "Cameras"]
+controllers_enabled: ["Reminder", "Misc", "Bramnik", "Cameras", "Gates"]
 #logger: stdout, journald
 logger: stdout
 cameras:
@@ -7,4 +7,9 @@ cameras:
     snapshot_uri: http://192.168.xxx.xxx/Streaming/channels/1/picture
     user: admin
     password: password
+gates:
+  - name: Gate 1
+    command: echo 'Dial +37544123456'
+  - name: Gate 2
+    command: echo 'Dial +37544123457'
 
