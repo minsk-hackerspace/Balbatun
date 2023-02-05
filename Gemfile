@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'telegram-bot-ruby'
 gem 'net-http-persistent'
+gem 'faraday-net_http_persistent'
 gem 'activerecord'
 gem 'rake'
 gem 'sqlite3'

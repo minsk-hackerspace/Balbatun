@@ -3,6 +3,7 @@
 
 require 'telegram/bot'
 require 'net/http/persistent'
+require 'faraday/net_http_persistent'
 require './lib/configurator'
 
 $config = Configurator.new
