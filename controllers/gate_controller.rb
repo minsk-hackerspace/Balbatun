@@ -30,8 +30,10 @@ class GatesController < BotController
   end
 
   def cmd_gate_open(message, text)
-    # TODO: This is callback, message is from bot, how to authorize?
-    # return unless Authorizer.authorize(@bot, message)
+    if message.from.id != @bot.bot_info['id']
+      reply message, "Это служебная команда, доступна только боту"
+      return
+    end
 
     @bot.tg_bot.api.delete_message(chat_id: message.chat.id, message_id: message.message_id)
 

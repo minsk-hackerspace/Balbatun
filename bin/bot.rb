@@ -41,41 +41,13 @@ class TheBot
     $logger.debug "Commands: " + @commands.keys.join(', ')
   end
 
-  def supported_commands
-    @commands.keys
-  end
-
-  def long_help(command)
-    h = @commands[command]&.long_help[command]
-    if h.nil?
-      h = "no help"
-    end
-    h
-  end
-
-  def entity_text(message, entity)
-    return nil unless entity
-
-    message&.text[entity.offset..(entity.offset + entity.length)]
-  end
-
-  def check_for_group_command(message)
-    entity = message.entities.first
-
-    return nil unless entity&.type == "bot_command"
-    return nil unless entity.is_a? Telegram::Bot::Types::MessageEntity
-
-    command = entity_text(message, entity).chomp(' ')
-    command, nick = command.split('@')
-
-    $logger.debug "Command, nick: #{command.inspect}, #{nick.inspect}"
-
-    return nick == @me["username"] ? command : nil
+  def bot_info
+    @me
   end
 
   def run_loop
     @tg_bot.run do |bot|
-      @me = bot.api.getMe['result']
+      @me = bot.api.getMe['result'].freeze
       $logger.debug "Me: " + @me.inspect
 
       bot.listen do |message|
@@ -109,6 +81,38 @@ class TheBot
   end
 
   private
+
+  def supported_commands
+    @commands.keys
+  end
+
+  def long_help(command)
+    h = @commands[command]&.long_help[command]
+    if h.nil?
+      h = "no help"
+    end
+    h
+  end
+
+  def entity_text(message, entity)
+    return nil unless entity
+
+    message&.text[entity.offset..(entity.offset + entity.length)]
+  end
+
+  def check_for_group_command(message)
+    entity = message.entities.first
+
+    return nil unless entity&.type == "bot_command"
+    return nil unless entity.is_a? Telegram::Bot::Types::MessageEntity
+
+    command = entity_text(message, entity).chomp(' ')
+    command, nick = command.split('@')
+
+    $logger.debug "Command, nick: #{command.inspect}, #{nick.inspect}"
+
+    return nick == @me["username"] ? command : nil
+  end
 
   def parse_message(message)
     return nil if message.text.nil?
