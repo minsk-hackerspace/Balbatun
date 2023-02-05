@@ -33,6 +33,8 @@ class GatesController < BotController
     # TODO: This is callback, message is from bot, how to authorize?
     # return unless Authorizer.authorize(@bot, message)
 
+    @bot.tg_bot.api.delete_message(chat_id: message.chat.id, message_id: message.message_id)
+
     gate = text.split[1].to_i
     return unless gate > 0 && gate <= @gates.count
 
